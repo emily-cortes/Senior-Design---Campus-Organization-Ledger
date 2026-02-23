@@ -8,6 +8,7 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("API is running... Hello World!");
+  res.send("does this work?")
 });
 
 const PORT = 3001;
