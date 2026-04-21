@@ -1,0 +1,141 @@
+{
+  "organizations": [
+    {
+      "id": "cs-club",
+      "name": "Computer Science Club",
+      "advisor": "Dr. Alicia Gomez",
+      "treasurer": "Nina Patel",
+      "category": "Academic",
+      "initialBalance": 4200,
+      "updatedAt": "2026-04-18T15:30:00.000Z"
+    },
+    {
+      "id": "robotics-team",
+      "name": "Robotics Team",
+      "advisor": "Prof. Marcus Hill",
+      "treasurer": "Jordan Lee",
+      "category": "Competition",
+      "initialBalance": 6800,
+      "updatedAt": "2026-04-19T11:15:00.000Z"
+    },
+    {
+      "id": "student-senate",
+      "name": "Student Senate",
+      "advisor": "Dean Rochelle Price",
+      "treasurer": "Camila Torres",
+      "category": "Leadership",
+      "initialBalance": 9500,
+      "updatedAt": "2026-04-20T08:10:00.000Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "txn-1001",
+      "organizationId": "cs-club",
+      "date": "2026-04-02",
+      "description": "Spring membership dues",
+      "category": "Revenue",
+      "fund": "Operating",
+      "amount": 850,
+      "type": "income",
+      "status": "approved",
+      "submittedBy": "Nina Patel"
+    },
+    {
+      "id": "txn-1002",
+      "organizationId": "cs-club",
+      "date": "2026-04-05",
+      "description": "Hack night food order",
+      "category": "Event",
+      "fund": "Programming",
+      "amount": 240,
+      "type": "expense",
+      "status": "approved",
+      "submittedBy": "Nina Patel"
+    },
+    {
+      "id": "txn-1003",
+      "organizationId": "cs-club",
+      "date": "2026-04-17",
+      "description": "Cloud credits sponsorship",
+      "category": "Sponsorship",
+      "fund": "Operating",
+      "amount": 1200,
+      "type": "income",
+      "status": "approved",
+      "submittedBy": "Alicia Gomez"
+    },
+    {
+      "id": "txn-1004",
+      "organizationId": "robotics-team",
+      "date": "2026-04-03",
+      "description": "Regional travel hotel",
+      "category": "Travel",
+      "fund": "Competition",
+      "amount": 1800,
+      "type": "expense",
+      "status": "approved",
+      "submittedBy": "Jordan Lee"
+    },
+    {
+      "id": "txn-1005",
+      "organizationId": "robotics-team",
+      "date": "2026-04-07",
+      "description": "STEM outreach grant",
+      "category": "Grant",
+      "fund": "Restricted",
+      "amount": 2500,
+      "type": "income",
+      "status": "approved",
+      "submittedBy": "Marcus Hill"
+    },
+    {
+      "id": "txn-1006",
+      "organizationId": "robotics-team",
+      "date": "2026-04-19",
+      "description": "Replacement sensor package",
+      "category": "Equipment",
+      "fund": "Competition",
+      "amount": 620,
+      "type": "expense",
+      "status": "pending",
+      "submittedBy": "Jordan Lee"
+    },
+    {
+      "id": "txn-1007",
+      "organizationId": "student-senate",
+      "date": "2026-04-01",
+      "description": "Semester allocation",
+      "category": "Allocation",
+      "fund": "Operating",
+      "amount": 4000,
+      "type": "income",
+      "status": "approved",
+      "submittedBy": "Rochelle Price"
+    },
+    {
+      "id": "txn-1008",
+      "organizationId": "student-senate",
+      "date": "2026-04-10",
+      "description": "Town hall setup and signage",
+      "category": "Event",
+      "fund": "Programming",
+      "amount": 910,
+      "type": "expense",
+      "status": "approved",
+      "submittedBy": "Camila Torres"
+    },
+    {
+      "id": "txn-1009",
+      "organizationId": "student-senate",
+      "date": "2026-04-16",
+      "description": "Leadership retreat deposit",
+      "category": "Travel",
+      "fund": "Programming",
+      "amount": 1300,
+      "type": "expense",
+      "status": "pending",
+      "submittedBy": "Camila Torres"
+    }
+  ]
+}

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campus Organization Ledger</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <main>
+        <section id="home-view" class="home-layout">
+          <header class="hero home-hero">
+            <div class="hero-copy">
+              <p class="eyebrow">Senior Design Project</p>
+              <h1>Campus Organization Ledger</h1>
+              <p class="hero-text">
+                A finance dashboard for student organizations to review balances, record
+                transactions, and keep treasurers and advisors on the same page.
+              </p>
+
+              <div class="hero-actions">
+                <button type="button" id="home-ready-button" class="primary-button">
+                  Ready to try?
+                </button>
+              </div>
+
+              <p class="home-note">
+                Profile customization and additional personalization are planned for a future
+                update.
+              </p>
+            </div>
+
+            <aside class="hero-card">
+              <p class="hero-card-label">Prototype Notice</p>
+              <h2>This is a prototype.</h2>
+              <p class="hero-card-text">
+                Feedback is greatly appreciated, and designs or features may change as the
+                senior design project continues to develop.
+              </p>
+            </aside>
+          </header>
+
+          <section class="panel info-grid">
+            <article class="info-card">
+              <p class="section-label">Purpose</p>
+              <h2>Built to replace scattered spreadsheets and unclear fund tracking.</h2>
+              <p class="subtle">
+                The goal is to give campus organizations one place to see current balances,
+                spending history, and pending requests with a cleaner workflow.
+              </p>
+            </article>
+
+            <article class="info-card emphasis-card">
+              <p class="section-label">Current Focus</p>
+              <ul class="hero-points">
+                <li>Organization-level fund tracking</li>
+                <li>Transaction entry and visibility</li>
+                <li>Support for treasurer and advisor roles</li>
+                <li>A foundation for future approvals and reporting</li>
+              </ul>
+            </article>
+          </section>
+        </section>
+
+        <section id="auth-view" class="auth-layout hidden">
+          <section class="panel auth-shell">
+            <div class="auth-header">
+              <div>
+                <p class="eyebrow">Account Access</p>
+                <h1>Sign in or create an account</h1>
+                <p class="subtle">
+                  Use sign up to create a prototype account, or sign in to continue to the
+                  dashboard.
+                </p>
+              </div>
+              <button type="button" id="back-home-button" class="ghost-button">
+                Back to home
+              </button>
+            </div>
+
+            <div class="auth-tabs">
+              <button type="button" id="show-signin-button" class="tab-button active">
+                Sign in
+              </button>
+              <button type="button" id="show-signup-button" class="tab-button">
+                Sign up
+              </button>
+            </div>
+
+            <div class="auth-grid auth-grid-simple">
+              <section id="signin-panel" class="auth-panel">
+                <h2>Welcome back</h2>
+                <form id="login-form" class="transaction-form" novalidate>
+                  <label class="field">
+                    <span>School email</span>
+                    <input
+                      type="email"
+                      name="email"
+                      id="login-email"
+                      placeholder="alex@school.edu"
+                      autocomplete="email"
+                      required
+                    />
+                  </label>
+
+                  <label class="field">
+                    <span>Password</span>
+                    <input
+                      type="password"
+                      name="password"
+                      placeholder="Enter password"
+                      autocomplete="current-password"
+                      required
+                    />
+                  </label>
+
+                  <button type="submit" class="primary-button">Log in</button>
+                  <p id="login-message" class="form-message" aria-live="polite"></p>
+                </form>
+              </section>
+
+              <section id="signup-panel" class="auth-panel hidden">
+                <h2>Create a prototype account</h2>
+                <p class="subtle auth-helper-copy">
+                  New accounts start as standard members. Roles can be managed later by admin accounts.
+                </p>
+
+                <form id="signup-form" class="transaction-form" novalidate>
+                  <label class="field">
+                    <span>Name</span>
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="Alex Johnson"
+                      autocomplete="name"
+                      required
+                    />
+                  </label>
+
+                  <label class="field">
+                    <span>Email</span>
+                    <input
+                      type="email"
+                      name="email"
+                      id="signup-email"
+                      placeholder="alex@school.edu"
+                      autocomplete="email"
+                      required
+                    />
+                  </label>
+
+                  <label class="field">
+                    <span>Password</span>
+                    <input
+                      type="password"
+                      name="password"
+                      minlength="8"
+                      placeholder="At least 8 characters"
+                      autocomplete="new-password"
+                      required
+                    />
+                  </label>
+
+                  <button type="submit" class="primary-button">Create account</button>
+                  <p id="signup-message" class="form-message" aria-live="polite"></p>
+                </form>
+              </section>
+            </div>
+          </section>
+        </section>
+
+        <section id="dashboard-view" class="dashboard hidden">
+          <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
+
+          <aside id="dashboard-sidebar" class="sidebar-panel" aria-hidden="true">
+            <div class="sidebar-header">
+              <div class="profile-avatar profile-avatar-large" aria-hidden="true">
+                <span class="avatar-head"></span>
+                <span class="avatar-body"></span>
+              </div>
+              <div>
+                <h2 id="sidebar-user-name">User Name</h2>
+                <p id="sidebar-user-role" class="subtle">Role</p>
+              </div>
+              <button type="button" id="sidebar-close-button" class="icon-button">
+                ×
+              </button>
+            </div>
+
+            <nav class="sidebar-nav">
+              <button type="button" class="sidebar-link active" data-sidebar-panel="announcements">
+                Announcements
+              </button>
+              <button type="button" class="sidebar-link" data-sidebar-panel="account">
+                Account Details
+              </button>
+              <button type="button" class="sidebar-link" data-sidebar-panel="settings">
+                Settings
+              </button>
+              <button type="button" class="sidebar-link" data-sidebar-panel="help">
+                Help
+              </button>
+            </nav>
+
+            <section class="sidebar-content">
+              <div id="sidebar-panel-announcements" class="sidebar-section">
+                <h3>Past announcements</h3>
+                <div id="sidebar-announcements-list" class="sidebar-announcements"></div>
+              </div>
+
+              <div id="sidebar-panel-account" class="sidebar-section hidden">
+                <h3>Account details</h3>
+                <div class="sidebar-detail-card">
+                  <p><strong>Name:</strong> <span id="account-name">User Name</span></p>
+                  <p><strong>Email:</strong> <span id="account-email">user@school.edu</span></p>
+                  <p><strong>Role:</strong> <span id="account-role">Role</span></p>
+                  <p><strong>Note:</strong> Personal customization is a future update.</p>
+                </div>
+              </div>
+
+              <div id="sidebar-panel-settings" class="sidebar-section hidden">
+                <h3>Settings</h3>
+                <div class="sidebar-detail-card">
+                  <p>Theme adjustments, notification preferences, and profile customization are planned for a future update.</p>
+                </div>
+              </div>
+
+              <div id="sidebar-panel-help" class="sidebar-section hidden">
+                <h3>Help</h3>
+                <div class="sidebar-detail-card">
+                  <p>If something looks off, use the prototype for feedback and note what should be improved for the next version.</p>
+                </div>
+              </div>
+            </section>
+
+            <button type="button" id="logout-button" class="sidebar-logout-button">
+              Log out
+            </button>
+          </aside>
+
+          <header class="panel dashboard-topbar">
+            <div class="topbar-left">
+              <button type="button" id="sidebar-toggle-button" class="icon-button menu-button">
+                ☰
+              </button>
+              <div>
+                <p class="eyebrow">Dashboard</p>
+                <h1>Campus Organization Ledger</h1>
+              </div>
+            </div>
+            <div class="topbar-right">
+              <div class="browser-chip">prototype campus-ledger.edu</div>
+            </div>
+          </header>
+
+          <section class="panel organization-banner">
+            <div class="organization-logo">LOGO</div>
+            <div class="organization-title-wrap">
+              <p class="section-label">Selected Organization</p>
+              <h2 id="organization-name">Loading organizations...</h2>
+              <p id="organization-meta" class="subtle"></p>
+            </div>
+            <label class="field organization-select-field">
+              <span>Change organization</span>
+              <select id="organization-select"></select>
+            </label>
+          </section>
+
+          <nav class="panel dashboard-nav">
+            <button type="button" class="nav-pill active" data-dashboard-page="home">
+              Home
+            </button>
+            <button type="button" class="nav-pill" data-dashboard-page="history">
+              History
+            </button>
+            <button type="button" class="nav-pill" data-dashboard-page="members">
+              Members
+            </button>
+            <button type="button" class="nav-pill" data-dashboard-page="messages">
+              Messages
+            </button>
+            <button type="button" class="nav-pill" data-dashboard-page="announcements">
+              Announcements
+            </button>
+          </nav>
+
+          <section class="dashboard-pages">
+            <section id="dashboard-page-home" class="dashboard-page">
+              <div class="dashboard-grid">
+                <article class="panel dashboard-card balance-card">
+                  <div class="card-header-inline">
+                    <h3>Account Balance</h3>
+                    <span class="card-chevron">⌄</span>
+                  </div>
+                  <p id="current-balance" class="balance-amount">$0.00</p>
+                  <div class="balance-stats">
+                    <div>
+                      <span>Approved income</span>
+                      <strong id="approved-income">$0.00</strong>
+                    </div>
+                    <div>
+                      <span>Approved expenses</span>
+                      <strong id="approved-expenses">$0.00</strong>
+                    </div>
+                    <div>
+                      <span>Pending expenses</span>
+                      <strong id="pending-expenses">$0.00</strong>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="panel dashboard-card compact-card">
+                  <button type="button" id="members-toggle" class="card-toggle">
+                    <span>Members</span>
+                    <span id="members-chevron" class="card-chevron">⌄</span>
+                  </button>
+                  <div id="members-content" class="compact-content">
+                    <div id="members-list" class="stack-list"></div>
+                  </div>
+                </article>
+
+                <article class="panel dashboard-card compact-card">
+                  <button type="button" id="messages-toggle" class="card-toggle">
+                    <span>Messages</span>
+                    <span id="messages-chevron" class="card-chevron">⌄</span>
+                  </button>
+                  <div id="messages-content" class="compact-content">
+                    <div id="messages-list" class="stack-list"></div>
+                  </div>
+                </article>
+
+                <article class="panel dashboard-card history-card">
+                  <div class="card-header-inline">
+                    <h3>Recent History</h3>
+                    <button
+                      type="button"
+                      class="link-button"
+                      id="open-history-page-button"
+                    >
+                      View full page
+                    </button>
+                  </div>
+                  <div class="table-wrap">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Description</th>
+                          <th>Deposit</th>
+                          <th>Withdrawal</th>
+                        </tr>
+                      </thead>
+                      <tbody id="transactions-body"></tbody>
+                    </table>
+                  </div>
+                </article>
+
+                <article class="panel dashboard-card announcements-card">
+                  <div class="card-header-inline">
+                    <h3>Announcements</h3>
+                    <span id="projected-balance" class="announcement-meta">Projected balance: $0.00</span>
+                  </div>
+                  <div id="announcements-feed" class="announcement-feed"></div>
+                </article>
+
+                <article class="panel dashboard-card entry-card">
+                  <div class="card-header-inline">
+                    <h3>New Transaction Entry</h3>
+                    <span class="entry-note">Keep the ledger current</span>
+                  </div>
+
+                  <form id="transaction-form" class="transaction-form">
+                    <label class="field">
+                      <span>Date</span>
+                      <input type="date" name="date" required />
+                    </label>
+
+                    <label class="field">
+                      <span>Description</span>
+                      <input type="text" name="description" placeholder="Conference registration" required />
+                    </label>
+
+                    <div class="field-row">
+                      <label class="field">
+                        <span>Category</span>
+                        <input type="text" name="category" placeholder="Travel" />
+                      </label>
+
+                      <label class="field">
+                        <span>Fund</span>
+                        <input type="text" name="fund" placeholder="Programming" />
+                      </label>
+                    </div>
+
+                    <div class="field-row">
+                      <label class="field">
+                        <span>Amount</span>
+                        <input type="number" name="amount" min="0.01" step="0.01" placeholder="0.00" required />
+                      </label>
+
+                      <label class="field">
+                        <span>Submitted by</span>
+                        <input type="text" name="submittedBy" placeholder="Treasurer name" />
+                      </label>
+                    </div>
+
+                    <div class="field-row">
+                      <label class="field">
+                        <span>Type</span>
+                        <select name="type" required>
+                          <option value="expense">Expense</option>
+                          <option value="income">Income</option>
+                        </select>
+                      </label>
+
+                      <label class="field">
+                        <span>Status</span>
+                        <select name="status" required>
+                          <option value="approved">Approved</option>
+                          <option value="pending">Pending</option>
+                        </select>
+                      </label>
+                    </div>
+
+                    <button type="submit" class="primary-button">Save transaction</button>
+                    <p id="form-message" class="form-message" aria-live="polite"></p>
+                  </form>
+                </article>
+              </div>
+            </section>
+
+            <section id="dashboard-page-history" class="dashboard-page hidden">
+              <article class="panel dashboard-card full-page-card">
+                <div class="card-header-inline">
+                  <h3>Transaction History</h3>
+                  <p class="subtle">Full history for the selected organization</p>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Fund</th>
+                        <th>Status</th>
+                        <th>Deposit</th>
+                        <th>Withdrawal</th>
+                      </tr>
+                    </thead>
+                    <tbody id="history-page-body"></tbody>
+                  </table>
+                </div>
+              </article>
+            </section>
+
+            <section id="dashboard-page-members" class="dashboard-page hidden">
+              <article class="panel dashboard-card full-page-card">
+                <div class="card-header-inline">
+                  <h3>Members</h3>
+                  <p class="subtle">Current organization members and statuses</p>
+                </div>
+                <div id="members-page-list" class="stack-list members-page-list"></div>
+              </article>
+            </section>
+
+            <section id="dashboard-page-messages" class="dashboard-page hidden">
+              <div class="messages-page-layout">
+                <article class="panel dashboard-card messages-list-card">
+                  <div class="card-header-inline">
+                    <h3>Message Threads</h3>
+                    <p class="subtle">Select a thread to view and respond</p>
+                  </div>
+                  <div id="messages-page-list" class="thread-list"></div>
+                </article>
+
+                <article class="panel dashboard-card message-thread-card">
+                  <div class="card-header-inline">
+                    <div>
+                      <h3 id="message-thread-subject">Select a message</h3>
+                      <p id="message-thread-meta" class="subtle">Open a thread to view replies</p>
+                    </div>
+                  </div>
+
+                  <div id="message-thread-body" class="thread-body"></div>
+
+                  <form id="message-reply-form" class="message-reply-form">
+                    <label class="field">
+                      <span>Reply to thread</span>
+                      <textarea
+                        id="message-reply-input"
+                        name="replyText"
+                        rows="3"
+                        placeholder="Type a reply to the selected message thread"
+                        required
+                      ></textarea>
+                    </label>
+                    <div class="reply-actions">
+                      <button type="submit" class="primary-button">Send reply</button>
+                      <p id="message-thread-feedback" class="form-message" aria-live="polite"></p>
+                    </div>
+                  </form>
+                </article>
+              </div>
+            </section>
+
+            <section id="dashboard-page-announcements" class="dashboard-page hidden">
+              <article class="panel dashboard-card full-page-card">
+                <div class="card-header-inline">
+                  <h3>Announcements</h3>
+                  <p class="subtle">Messages from advisors, admins, and finance leadership</p>
+                </div>
+                <div id="announcements-page-feed" class="announcement-feed"></div>
+              </article>
+            </section>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
