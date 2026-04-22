@@ -6,5 +6,13 @@
     "role": "Member",
     "passwordHash": "$2b$10$.d7MhIk3LQm65uebAW918.WFmLGIlundPIFbmp5tXf5Gj/qLP1ooC",
     "createdAt": "2026-04-20T21:42:58.900Z"
+  },
+  {
+    "id": "6b984d84-18c4-4a81-b7d2-f4228d97391b",
+    "name": "Mark",
+    "email": "mark@gmail.com",
+    "role": "Member",
+    "passwordHash": "$2b$10$7RDMJRKHkXhpS6wxPCwRXukgcIC4T4E72Nb24mq/yAT8Q.blJnF4O",
+    "createdAt": "2026-04-22T19:58:29.441Z"
   }
 ]
