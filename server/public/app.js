@@ -4,6 +4,7 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 });
 
 const TOKEN_KEY = "campus-ledger-token";
+const ACCOUNT_ID_PATTERN = /^K00\d{6}$/;
 
 const dashboardExtras = {
   "cs-club": {
@@ -240,8 +241,9 @@ const elements = {
   signupPanel: document.querySelector("#signup-panel"),
   loginForm: document.querySelector("#login-form"),
   signupForm: document.querySelector("#signup-form"),
-  loginEmail: document.querySelector("#login-email"),
+  loginIdentifier: document.querySelector("#login-identifier"),
   signupEmail: document.querySelector("#signup-email"),
+  signupAccountId: document.querySelector("#signup-account-id"),
   loginMessage: document.querySelector("#login-message"),
   signupMessage: document.querySelector("#signup-message"),
   sidebarOverlay: document.querySelector("#sidebar-overlay"),
@@ -253,6 +255,7 @@ const elements = {
   sidebarUserRole: document.querySelector("#sidebar-user-role"),
   accountName: document.querySelector("#account-name"),
   accountEmail: document.querySelector("#account-email"),
+  accountId: document.querySelector("#account-id"),
   accountRole: document.querySelector("#account-role"),
   sidebarAnnouncementsList: document.querySelector("#sidebar-announcements-list"),
   logoutButton: document.querySelector("#logout-button"),
@@ -297,6 +300,14 @@ function formatCurrency(value) {
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
+}
+
+function isValidAccountId(accountId) {
+  return ACCOUNT_ID_PATTERN.test(String(accountId || "").trim().toUpperCase());
+}
+
+function normalizeAccountId(accountId) {
+  return String(accountId || "").trim().toUpperCase();
 }
 
 function formatDisplayDate(dateString) {
@@ -382,10 +393,10 @@ function setMessage(element, text, isError = false) {
   element.classList.toggle("error", isError);
 }
 
-function moveToSigninWithEmail(email, message) {
+function moveToSigninWithIdentifier(identifier, message) {
   showView("auth");
   showAuthMode("signin");
-  elements.loginForm.elements.email.value = email;
+  elements.loginForm.elements.identifier.value = identifier;
   setMessage(elements.loginMessage, message, true);
 }
 
@@ -411,13 +422,13 @@ async function apiFetch(url, options = {}) {
   return response;
 }
 
-async function checkAccountStatus(email) {
+async function checkAccountStatus(identifier) {
   const response = await fetch("/api/auth/check-account", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ email })
+    body: JSON.stringify({ identifier })
   });
 
   return response.json();
@@ -434,6 +445,7 @@ function renderActiveUser() {
   elements.sidebarUserRole.textContent = roleLine;
   elements.accountName.textContent = state.activeUser.name;
   elements.accountEmail.textContent = state.activeUser.email;
+  elements.accountId.textContent = state.activeUser.accountId;
   elements.accountRole.textContent = state.activeUser.role;
 }
 
@@ -807,12 +819,16 @@ async function handleLogin(event) {
 
   const formData = new FormData(elements.loginForm);
   const payload = {
-    email: String(formData.get("email") || "").trim(),
+    identifier: String(formData.get("identifier") || "").trim(),
     password: String(formData.get("password") || "")
   };
 
-  if (!isValidEmail(payload.email)) {
-    setMessage(elements.loginMessage, "Please enter a valid email address.", true);
+  if (!isValidEmail(payload.identifier) && !isValidAccountId(payload.identifier)) {
+    setMessage(
+      elements.loginMessage,
+      "Please enter a valid email address or a K-number between K00000000 and K00999999.",
+      true
+    );
     return;
   }
 
@@ -838,6 +854,7 @@ async function handleSignup(event) {
   const payload = {
     name: String(formData.get("name") || "").trim(),
     email: String(formData.get("email") || "").trim(),
+    accountId: normalizeAccountId(formData.get("accountId")),
     password: String(formData.get("password") || "")
   };
 
@@ -851,17 +868,36 @@ async function handleSignup(event) {
     return;
   }
 
+  if (!isValidAccountId(payload.accountId)) {
+    setMessage(
+      elements.signupMessage,
+      "Account ID must be between K00000000 and K00999999.",
+      true
+    );
+    return;
+  }
+
   if (payload.password.length < 8) {
     setMessage(elements.signupMessage, "Password must be at least 8 characters long.", true);
     return;
   }
 
-  const accountStatus = await checkAccountStatus(payload.email);
-  if (accountStatus.exists) {
+  const emailStatus = await checkAccountStatus(payload.email);
+  if (emailStatus.exists) {
     elements.signupForm.reset();
-    moveToSigninWithEmail(
+    moveToSigninWithIdentifier(
       payload.email,
       "That email is already in the system. Try signing in instead."
+    );
+    return;
+  }
+
+  const accountIdStatus = await checkAccountStatus(payload.accountId);
+  if (accountIdStatus.exists) {
+    setMessage(
+      elements.signupMessage,
+      "That K-number is already in the system.",
+      true
     );
     return;
   }
@@ -937,7 +973,8 @@ function addReplyToThread(replyText) {
     role: state.activeUser.role,
     sentAt: timestamp,
     text: replyText,
-    reactions: { like: 0, support: 0, celebrate: 0 }
+    reactions: { up: 0, down: 0 },
+    userReaction: null
   });
 
   thread.status = "Read";
@@ -1027,18 +1064,18 @@ elements.showSignupButton.addEventListener("click", () => {
   showAuthMode("signup");
 });
 
-elements.loginEmail.addEventListener("blur", async () => {
-  const email = elements.loginEmail.value.trim();
+elements.loginIdentifier.addEventListener("blur", async () => {
+  const identifier = elements.loginIdentifier.value.trim();
 
-  if (!email || !isValidEmail(email)) {
+  if (!identifier || (!isValidEmail(identifier) && !isValidAccountId(identifier))) {
     return;
   }
 
-  const accountStatus = await checkAccountStatus(email);
+  const accountStatus = await checkAccountStatus(identifier);
   if (!accountStatus.exists) {
     setMessage(
       elements.loginMessage,
-      "No account was found for that email yet. You may need to sign up first.",
+      "No account was found for that email or K-number yet. You may need to sign up first.",
       true
     );
   } else {
@@ -1061,6 +1098,26 @@ elements.signupEmail.addEventListener("blur", async () => {
       true
     );
   } else {
+    setMessage(elements.signupMessage, "");
+  }
+});
+
+elements.signupAccountId.addEventListener("blur", async () => {
+  const accountId = normalizeAccountId(elements.signupAccountId.value);
+  elements.signupAccountId.value = accountId;
+
+  if (!accountId || !isValidAccountId(accountId)) {
+    return;
+  }
+
+  const accountStatus = await checkAccountStatus(accountId);
+  if (accountStatus.exists) {
+    setMessage(
+      elements.signupMessage,
+      "That K-number is already registered.",
+      true
+    );
+  } else if (!elements.signupMessage.textContent.includes("email")) {
     setMessage(elements.signupMessage, "");
   }
 });

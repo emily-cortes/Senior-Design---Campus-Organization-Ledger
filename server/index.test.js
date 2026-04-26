@@ -10,6 +10,9 @@ let usersFile;
 test.before(async () => {
   process.env.PORT = "3101";
   process.env.JWT_SECRET = "test-secret";
+  process.env.ADMIN_ACCOUNT_IDS = "K00123456";
+  process.env.FIREBASE_SERVICE_ACCOUNT_PATH = "";
+  process.env.FIREBASE_SERVICE_ACCOUNT_JSON = "";
   usersFile = path.join(os.tmpdir(), `campus-ledger-users-${Date.now()}.json`);
   process.env.USERS_DATA_FILE = usersFile;
   await fs.writeFile(usersFile, "[]");
@@ -58,6 +61,7 @@ test("signup creates an account and returns an auth token", async () => {
     body: JSON.stringify({
       name: "Alex Johnson",
       email: "alex@school.edu",
+      accountId: "K00987654",
       password: "prototype123"
     })
   });
@@ -66,34 +70,74 @@ test("signup creates an account and returns an auth token", async () => {
   assert.equal(response.status, 201);
   assert.equal(typeof body.token, "string");
   assert.equal(body.user.email, "alex@school.edu");
+  assert.equal(body.user.accountId, "K00987654");
   assert.equal(body.user.role, "Member");
 });
 
-test("check-account detects when an email is already registered", async () => {
+test("admin K-numbers are recognized as admin accounts", async () => {
+  const response = await fetch("http://127.0.0.1:3101/api/auth/signup", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: "Admin User",
+      email: "admin@school.edu",
+      accountId: "K00123456",
+      password: "prototype123"
+    })
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 201);
+  assert.equal(body.user.role, "Admin");
+});
+
+test("signup rejects K-numbers outside the accepted range", async () => {
+  const response = await fetch("http://127.0.0.1:3101/api/auth/signup", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: "Out of Range User",
+      email: "range@school.edu",
+      accountId: "K01000000",
+      password: "prototype123"
+    })
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 400);
+  assert.equal(body.error, "Account ID must be between K00000000 and K00999999.");
+});
+
+test("check-account detects when an account identifier is already registered", async () => {
   const response = await fetch("http://127.0.0.1:3101/api/auth/check-account", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      email: "alex@school.edu"
+      identifier: "K00987654"
     })
   });
   const body = await response.json();
 
   assert.equal(response.status, 200);
   assert.equal(body.exists, true);
+  assert.equal(body.user.accountId, "K00987654");
   assert.equal(body.user.email, "alex@school.edu");
 });
 
-test("login returns a token that can access protected organization data", async () => {
+test("login accepts a K-number and returns a token for protected data", async () => {
   const loginResponse = await fetch("http://127.0.0.1:3101/api/auth/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      email: "alex@school.edu",
+      identifier: "K00987654",
       password: "prototype123"
     })
   });

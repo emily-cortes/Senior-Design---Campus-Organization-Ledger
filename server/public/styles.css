@@ -444,13 +444,26 @@ textarea {
 }
 
 .organization-logo {
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
   min-height: 6rem;
   border-radius: 20px;
   border: 2px solid rgba(231, 181, 23, 0.32);
   background: linear-gradient(135deg, var(--gold-500), var(--gold-400));
   color: var(--blue-900);
+  padding: 0.75rem 1rem;
+}
+
+.organization-seal {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(27, 79, 164, 0.14));
+}
+
+.organization-logo-text {
   font-size: 1.3rem;
   font-weight: 800;
   letter-spacing: 0.08em;

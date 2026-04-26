@@ -7,7 +7,7 @@
       "treasurer": "Nina Patel",
       "category": "Academic",
       "initialBalance": 4200,
-      "updatedAt": "2026-04-18T15:30:00.000Z"
+      "updatedAt": "2026-04-26T20:18:15.239Z"
     },
     {
       "id": "robotics-team",
@@ -136,6 +136,30 @@
       "type": "expense",
       "status": "pending",
       "submittedBy": "Camila Torres"
+    },
+    {
+      "id": "7459cc46-d76c-4db6-b0f0-e65f7da70a0c",
+      "date": "2026-04-26",
+      "description": "food for fundraiser from Sunday",
+      "category": "Food",
+      "fund": "Fundraiser",
+      "amount": 100,
+      "type": "expense",
+      "status": "pending",
+      "submittedBy": "Devanie contreras",
+      "organizationId": "cs-club"
+    },
+    {
+      "id": "8137b289-5c07-444e-af4f-0ffe4bb01682",
+      "date": "2026-04-26",
+      "description": "Movie night expenses",
+      "category": "Event",
+      "fund": "movie night",
+      "amount": 75,
+      "type": "expense",
+      "status": "approved",
+      "submittedBy": "Emily Cortes",
+      "organizationId": "cs-club"
     }
   ]
 }

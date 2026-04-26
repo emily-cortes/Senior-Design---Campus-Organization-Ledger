@@ -1,7 +1,13 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const { authenticateUser, createUser, findUserByEmail } = require("./data/auth-store");
+const {
+  authenticateUser,
+  createUser,
+  findUserByIdentifier
+} = require("./data/auth-store");
 const { createAuthToken, requireAuth } = require("./auth");
 const {
   addTransaction,
@@ -42,7 +48,7 @@ app.post("/api/auth/signup", async (req, res) => {
 
 app.post("/api/auth/login", async (req, res) => {
   try {
-    const user = await authenticateUser(req.body.email, req.body.password);
+    const user = await authenticateUser(req.body.identifier || req.body.email, req.body.password);
     const token = createAuthToken(user);
 
     return res.json({
@@ -55,7 +61,9 @@ app.post("/api/auth/login", async (req, res) => {
 });
 
 app.post("/api/auth/check-account", async (req, res) => {
-  const user = await findUserByEmail(req.body.email);
+  const user = await findUserByIdentifier(
+    req.body.identifier || req.body.email || req.body.accountId
+  );
 
   return res.json({
     exists: Boolean(user),

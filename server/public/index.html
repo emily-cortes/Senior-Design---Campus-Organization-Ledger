@@ -93,13 +93,13 @@
                 <h2>Welcome back</h2>
                 <form id="login-form" class="transaction-form" novalidate>
                   <label class="field">
-                    <span>School email</span>
+                    <span>Email or K-Number</span>
                     <input
-                      type="email"
-                      name="email"
-                      id="login-email"
-                      placeholder="alex@school.edu"
-                      autocomplete="email"
+                      type="text"
+                      name="identifier"
+                      id="login-identifier"
+                      placeholder="alex@school.edu or K00123456"
+                      autocomplete="username"
                       required
                     />
                   </label>
@@ -146,6 +146,18 @@
                       id="signup-email"
                       placeholder="alex@school.edu"
                       autocomplete="email"
+                      required
+                    />
+                  </label>
+
+                  <label class="field">
+                    <span>TAMUK Account ID</span>
+                    <input
+                      type="text"
+                      name="accountId"
+                      id="signup-account-id"
+                      placeholder="K00123456"
+                      autocomplete="off"
                       required
                     />
                   </label>
@@ -214,6 +226,7 @@
                 <div class="sidebar-detail-card">
                   <p><strong>Name:</strong> <span id="account-name">User Name</span></p>
                   <p><strong>Email:</strong> <span id="account-email">user@school.edu</span></p>
+                  <p><strong>K-Number:</strong> <span id="account-id">K00123456</span></p>
                   <p><strong>Role:</strong> <span id="account-role">Role</span></p>
                   <p><strong>Note:</strong> Personal customization is a future update.</p>
                 </div>
@@ -255,7 +268,14 @@
           </header>
 
           <section class="panel organization-banner">
-            <div class="organization-logo">LOGO</div>
+            <div class="organization-logo">
+              <img
+                src="/tamuk-seal.svg"
+                alt="Texas A&amp;M University-Kingsville seal"
+                class="organization-seal"
+              />
+              <span class="organization-logo-text">TAMUK</span>
+            </div>
             <div class="organization-title-wrap">
               <p class="section-label">Selected Organization</p>
               <h2 id="organization-name">Loading organizations...</h2>
