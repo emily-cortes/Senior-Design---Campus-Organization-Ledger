@@ -30,8 +30,10 @@ Then open [http://localhost:3001](http://localhost:3001).
 
 The project can run in two modes:
 
-- Without Firebase configured, it uses the local JSON seed files so the prototype works right away.
-- With Firebase configured, it stores users, organizations, and transactions in Firestore.
+- Without Firebase configured, the ledger seed data can still come from local JSON for development.
+- With Firebase configured, users, organizations, and transactions are stored in Firestore.
+
+User accounts are no longer stored in a committed `users.json` file.
 
 To configure Firebase:
 
@@ -44,6 +46,38 @@ Example admin list:
 
 ```env
 ADMIN_ACCOUNT_IDS=K00123456,K00999999
+```
+
+## Access control structure
+
+Firestore can also store role templates and K-number-based access assignments.
+
+Run this from the `server` directory to seed the structure:
+
+```bash
+npm run seed:access-control
+```
+
+This creates:
+
+- `access_roles`: reusable role templates like `member`, `treasurer`, `advisor`, and `admin`
+- `access_assignments`: one document per K-number, keyed by account ID
+- `system/access_control`: a small reference document that explains the structure
+
+Example assignment document:
+
+```json
+{
+  "accountId": "K00123456",
+  "roleIds": ["admin"],
+  "scope": {
+    "level": "organization",
+    "organizationIds": ["cs-club"]
+  },
+  "grantedPermissions": ["reports.export"],
+  "deniedPermissions": ["transactions.approve"],
+  "notes": "Example role assignment"
+}
 ```
 
 ## API endpoints

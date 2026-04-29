@@ -1,5 +1,4 @@
 const fs = require("fs/promises");
-const path = require("path");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const { getFirestore } = require("./firebase");
@@ -11,7 +10,17 @@ function getUsersCollectionName() {
 }
 
 function getUsersFile() {
-  return process.env.USERS_DATA_FILE || path.join(__dirname, "users.json");
+  return process.env.USERS_DATA_FILE || null;
+}
+
+function requireLocalUsersFile() {
+  const usersFile = getUsersFile();
+
+  if (!usersFile) {
+    throw new Error("Firebase auth storage is required for this environment.");
+  }
+
+  return usersFile;
 }
 
 function getAdminAccountIds() {
@@ -90,7 +99,7 @@ async function readUsers() {
     }));
   }
 
-  const raw = await fs.readFile(getUsersFile(), "utf8");
+  const raw = await fs.readFile(requireLocalUsersFile(), "utf8");
   return JSON.parse(raw);
 }
 
@@ -114,7 +123,7 @@ async function writeUsers(users) {
     return;
   }
 
-  await fs.writeFile(getUsersFile(), JSON.stringify(users, null, 2));
+  await fs.writeFile(requireLocalUsersFile(), JSON.stringify(users, null, 2));
 }
 
 async function createFirestoreUser(user) {
@@ -184,6 +193,13 @@ async function findUserByIdentifier(identifier) {
     : findUserByEmail(identifier);
 }
 
+async function listUsers() {
+  const users = await readUsers();
+  return users
+    .map(sanitizeUser)
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
 async function createUser(input) {
   const firestore = getFirestore();
   const normalizedUser = validateSignupInput(input);
@@ -250,5 +266,6 @@ module.exports = {
   findUserByEmail,
   findUserByIdentifier,
   findUserById,
-  isValidAccountId
+  isValidAccountId,
+  listUsers
 };

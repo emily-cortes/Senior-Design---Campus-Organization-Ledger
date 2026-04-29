@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { findUserById } = require("./data/auth-store");
+const { hasPermission, resolveUserAccess } = require("./data/access-control");
 
 function getJwtSecret() {
   return process.env.JWT_SECRET || "campus-ledger-prototype-secret";
@@ -16,6 +17,15 @@ function createAuthToken(user) {
     getJwtSecret(),
     { expiresIn: "12h" }
   );
+}
+
+async function buildAuthenticatedUser(user) {
+  const accessProfile = await resolveUserAccess(user);
+
+  return {
+    ...user,
+    ...accessProfile
+  };
 }
 
 function getBearerToken(authorizationHeader) {
@@ -41,14 +51,26 @@ async function requireAuth(req, res, next) {
       return res.status(401).json({ error: "Your session is no longer valid." });
     }
 
-    req.user = user;
+    req.user = await buildAuthenticatedUser(user);
     return next();
   } catch (error) {
     return res.status(401).json({ error: "Authentication is required." });
   }
 }
 
+function requirePermission(permission) {
+  return (req, res, next) => {
+    if (!hasPermission(req.user, permission)) {
+      return res.status(403).json({ error: "You do not have permission to perform this action." });
+    }
+
+    return next();
+  };
+}
+
 module.exports = {
+  buildAuthenticatedUser,
   createAuthToken,
-  requireAuth
+  requireAuth,
+  requirePermission
 };

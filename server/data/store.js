@@ -206,7 +206,9 @@ function normalizeTransactionInput(input) {
     amount: roundCurrency(amount),
     type: input.type,
     status: input.status,
-    submittedBy: (input.submittedBy || "Treasurer").trim()
+    submittedBy: (input.submittedBy || "Treasurer").trim(),
+    approvedBy: input.approvedBy ? String(input.approvedBy).trim() : "",
+    approvedAt: input.approvedAt ? String(input.approvedAt).trim() : ""
   };
 }
 
@@ -232,9 +234,41 @@ async function addTransaction(organizationId, input) {
   return transaction;
 }
 
+async function updateTransactionStatus(organizationId, transactionId, statusUpdate) {
+  const ledger = await readLedger();
+  const organization = ledger.organizations.find((entry) => entry.id === organizationId);
+
+  if (!organization) {
+    throw new Error("Organization not found.");
+  }
+
+  if (!VALID_STATUSES.has(statusUpdate.status)) {
+    throw new Error("Transaction status must be approved or pending.");
+  }
+
+  const transaction = ledger.transactions.find(
+    (entry) => entry.organizationId === organizationId && entry.id === transactionId
+  );
+
+  if (!transaction) {
+    throw new Error("Transaction not found.");
+  }
+
+  transaction.status = statusUpdate.status;
+  transaction.approvedBy =
+    statusUpdate.status === "approved" ? String(statusUpdate.approvedBy || "").trim() : "";
+  transaction.approvedAt = statusUpdate.status === "approved" ? new Date().toISOString() : "";
+  organization.updatedAt = new Date().toISOString();
+
+  await writeLedger(ledger);
+
+  return transaction;
+}
+
 module.exports = {
   addTransaction,
   getOrganizationById,
   getOrganizationsWithSummaries,
-  getTransactionsForOrganization
+  getTransactionsForOrganization,
+  updateTransactionStatus
 };

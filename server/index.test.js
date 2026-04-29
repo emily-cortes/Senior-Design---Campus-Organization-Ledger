@@ -6,6 +6,15 @@ const path = require("path");
 
 let server;
 let usersFile;
+let ledgerFile;
+
+async function updateStoredUser(accountId, updates) {
+  const users = JSON.parse(await fs.readFile(usersFile, "utf8"));
+  const updatedUsers = users.map((user) =>
+    user.accountId === accountId ? { ...user, ...updates } : user
+  );
+  await fs.writeFile(usersFile, JSON.stringify(updatedUsers, null, 2));
+}
 
 test.before(async () => {
   process.env.PORT = "3101";
@@ -14,8 +23,11 @@ test.before(async () => {
   process.env.FIREBASE_SERVICE_ACCOUNT_PATH = "";
   process.env.FIREBASE_SERVICE_ACCOUNT_JSON = "";
   usersFile = path.join(os.tmpdir(), `campus-ledger-users-${Date.now()}.json`);
+  ledgerFile = path.join(os.tmpdir(), `campus-ledger-ledger-${Date.now()}.json`);
   process.env.USERS_DATA_FILE = usersFile;
+  process.env.LEDGER_DATA_FILE = ledgerFile;
   await fs.writeFile(usersFile, "[]");
+  await fs.copyFile(path.join(__dirname, "data", "ledger.json"), ledgerFile);
   server = require("./index");
   await new Promise((resolve) => server.on("listening", resolve));
 });
@@ -33,6 +45,7 @@ test.after(async () => {
   });
 
   await fs.rm(usersFile, { force: true });
+  await fs.rm(ledgerFile, { force: true });
 });
 
 test("health endpoint returns service status", async () => {
@@ -158,4 +171,127 @@ test("login accepts a K-number and returns a token for protected data", async ()
   assert.ok(organizationsBody.length >= 3);
   assert.equal(organizationsBody[0].summary.organizationId, organizationsBody[0].id);
   assert.equal(typeof organizationsBody[0].summary.currentBalance, "number");
+});
+
+test("members cannot create transactions without the treasurer/admin permission", async () => {
+  const loginResponse = await fetch("http://127.0.0.1:3101/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      identifier: "K00987654",
+      password: "prototype123"
+    })
+  });
+  const loginBody = await loginResponse.json();
+
+  const response = await fetch("http://127.0.0.1:3101/api/organizations/cs-club/transactions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${loginBody.token}`
+    },
+    body: JSON.stringify({
+      date: "2026-04-26",
+      description: "Unauthorized test transaction",
+      category: "Testing",
+      fund: "Operating",
+      amount: 25,
+      type: "expense",
+      status: "pending",
+      submittedBy: "Alex Johnson"
+    })
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 403);
+  assert.equal(body.error, "You do not have permission to perform this action.");
+});
+
+test("admins receive permissions and can create transactions", async () => {
+  const loginResponse = await fetch("http://127.0.0.1:3101/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      identifier: "K00123456",
+      password: "prototype123"
+    })
+  });
+  const loginBody = await loginResponse.json();
+
+  assert.equal(loginResponse.status, 200);
+  assert.ok(Array.isArray(loginBody.user.permissions));
+  assert.ok(loginBody.user.permissions.includes("transactions.create"));
+
+  const response = await fetch("http://127.0.0.1:3101/api/organizations/cs-club/transactions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${loginBody.token}`
+    },
+    body: JSON.stringify({
+      date: "2026-04-26",
+      description: "Admin approved test transaction",
+      category: "Testing",
+      fund: "Operating",
+      amount: 50,
+      type: "income",
+      status: "approved",
+      submittedBy: "Admin User"
+    })
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 201);
+  assert.equal(body.organization.id, "cs-club");
+  assert.ok(body.transactions.some((transaction) => transaction.description === "Admin approved test transaction"));
+});
+
+test("officers can submit requests, but their ledger entries stay pending until approval", async () => {
+  await updateStoredUser("K00987654", { role: "Officer" });
+
+  const loginResponse = await fetch("http://127.0.0.1:3101/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      identifier: "K00987654",
+      password: "prototype123"
+    })
+  });
+  const loginBody = await loginResponse.json();
+
+  assert.equal(loginResponse.status, 200);
+  assert.equal(loginBody.user.role, "Officer");
+  assert.ok(loginBody.user.permissions.includes("transactions.create"));
+  assert.ok(!loginBody.user.permissions.includes("transactions.approve"));
+
+  const response = await fetch("http://127.0.0.1:3101/api/organizations/cs-club/transactions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${loginBody.token}`
+    },
+    body: JSON.stringify({
+      date: "2026-04-27",
+      description: "Officer funding request",
+      category: "Travel",
+      fund: "Programming",
+      amount: 75,
+      type: "expense",
+      status: "approved",
+      submittedBy: "Alex Johnson"
+    })
+  });
+  const body = await response.json();
+  const newTransaction = body.transactions.find(
+    (transaction) => transaction.description === "Officer funding request"
+  );
+
+  assert.equal(response.status, 201);
+  assert.equal(newTransaction.status, "pending");
 });

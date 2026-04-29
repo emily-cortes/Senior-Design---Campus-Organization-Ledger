@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Campus Organization Ledger</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.css?v=20260427-memberroles" />
   </head>
   <body>
     <div class="page-shell">
@@ -123,7 +123,7 @@
               <section id="signup-panel" class="auth-panel hidden">
                 <h2>Create a prototype account</h2>
                 <p class="subtle auth-helper-copy">
-                  New accounts start as standard members. Roles can be managed later by admin accounts.
+                  New accounts start as Members. Personal emails stay unique to each person, and roles are assigned later by admins inside the dashboard.
                 </p>
 
                 <form id="signup-form" class="transaction-form" novalidate>
@@ -291,11 +291,11 @@
             <button type="button" class="nav-pill active" data-dashboard-page="home">
               Home
             </button>
-            <button type="button" class="nav-pill" data-dashboard-page="history">
-              History
+            <button type="button" class="nav-pill" data-dashboard-page="transactions">
+              <span id="history-nav-label">Transactions</span>
             </button>
             <button type="button" class="nav-pill" data-dashboard-page="members">
-              Members
+              Members (WIP)
             </button>
             <button type="button" class="nav-pill" data-dashboard-page="messages">
               Messages
@@ -303,15 +303,17 @@
             <button type="button" class="nav-pill" data-dashboard-page="announcements">
               Announcements
             </button>
+            <button type="button" class="nav-pill hidden" data-dashboard-page="access">
+              Admin
+            </button>
           </nav>
 
           <section class="dashboard-pages">
             <section id="dashboard-page-home" class="dashboard-page">
               <div class="dashboard-grid">
-                <article class="panel dashboard-card balance-card">
+                <article id="balance-card" class="panel dashboard-card balance-card">
                   <div class="card-header-inline">
                     <h3>Account Balance</h3>
-                    <span class="card-chevron">⌄</span>
                   </div>
                   <p id="current-balance" class="balance-amount">$0.00</p>
                   <div class="balance-stats">
@@ -330,9 +332,9 @@
                   </div>
                 </article>
 
-                <article class="panel dashboard-card compact-card">
+                <article id="members-card" class="panel dashboard-card compact-card">
                   <button type="button" id="members-toggle" class="card-toggle">
-                    <span>Members</span>
+                    <span>Members (WIP)</span>
                     <span id="members-chevron" class="card-chevron">⌄</span>
                   </button>
                   <div id="members-content" class="compact-content">
@@ -340,7 +342,7 @@
                   </div>
                 </article>
 
-                <article class="panel dashboard-card compact-card">
+                <article id="messages-card" class="panel dashboard-card compact-card">
                   <button type="button" id="messages-toggle" class="card-toggle">
                     <span>Messages</span>
                     <span id="messages-chevron" class="card-chevron">⌄</span>
@@ -350,15 +352,15 @@
                   </div>
                 </article>
 
-                <article class="panel dashboard-card history-card">
+                <article id="history-card" class="panel dashboard-card history-card">
                   <div class="card-header-inline">
-                    <h3>Recent History</h3>
+                    <h3 id="history-card-title">Recent Transactions</h3>
                     <button
                       type="button"
                       class="link-button"
                       id="open-history-page-button"
                     >
-                      View full page
+                      Open transactions
                     </button>
                   </div>
                   <div class="table-wrap">
@@ -376,7 +378,7 @@
                   </div>
                 </article>
 
-                <article class="panel dashboard-card announcements-card">
+                <article id="announcements-card" class="panel dashboard-card announcements-card">
                   <div class="card-header-inline">
                     <h3>Announcements</h3>
                     <span id="projected-balance" class="announcement-meta">Projected balance: $0.00</span>
@@ -384,7 +386,56 @@
                   <div id="announcements-feed" class="announcement-feed"></div>
                 </article>
 
-                <article class="panel dashboard-card entry-card">
+              </div>
+            </section>
+
+            <section id="dashboard-page-transactions" class="dashboard-page hidden">
+              <div class="transactions-page-layout">
+                <article class="panel dashboard-card full-page-card">
+                  <div class="card-header-inline">
+                    <h3 id="history-page-title">Full Transactions</h3>
+                    <p id="history-page-subtitle" class="subtle">Review the full transaction ledger for the selected organization.</p>
+                  </div>
+                  <div class="ledger-toolbar">
+                    <p id="transactions-page-count" class="subtle">Showing 0-0 of 0 transactions</p>
+                    <div class="ledger-pagination">
+                      <button
+                        type="button"
+                        id="transactions-page-prev"
+                        class="icon-button ledger-page-button"
+                        aria-label="Previous transaction page"
+                      >
+                        ←
+                      </button>
+                      <button
+                        type="button"
+                        id="transactions-page-next"
+                        class="icon-button ledger-page-button"
+                        aria-label="Next transaction page"
+                      >
+                        →
+                      </button>
+                    </div>
+                  </div>
+                  <div class="table-wrap">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th></th>
+                          <th>Date</th>
+                          <th>Description</th>
+                          <th>Type</th>
+                          <th>Status</th>
+                          <th>Amount</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="history-page-body"></tbody>
+                    </table>
+                  </div>
+                </article>
+
+                <article id="entry-card" class="panel dashboard-card entry-card">
                   <div class="card-header-inline">
                     <h3>New Transaction Entry</h3>
                     <span class="entry-note">Keep the ledger current</span>
@@ -443,6 +494,9 @@
                       </label>
                     </div>
 
+                    <p id="transaction-permission-note" class="subtle">
+                      Officer requests stay pending until a sponsor, treasurer, or president approves them.
+                    </p>
                     <button type="submit" class="primary-button">Save transaction</button>
                     <p id="form-message" class="form-message" aria-live="polite"></p>
                   </form>
@@ -450,36 +504,13 @@
               </div>
             </section>
 
-            <section id="dashboard-page-history" class="dashboard-page hidden">
-              <article class="panel dashboard-card full-page-card">
-                <div class="card-header-inline">
-                  <h3>Transaction History</h3>
-                  <p class="subtle">Full history for the selected organization</p>
-                </div>
-                <div class="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Description</th>
-                        <th>Fund</th>
-                        <th>Status</th>
-                        <th>Deposit</th>
-                        <th>Withdrawal</th>
-                      </tr>
-                    </thead>
-                    <tbody id="history-page-body"></tbody>
-                  </table>
-                </div>
-              </article>
-            </section>
-
             <section id="dashboard-page-members" class="dashboard-page hidden">
               <article class="panel dashboard-card full-page-card">
                 <div class="card-header-inline">
-                  <h3>Members</h3>
+                  <h3>Members (WIP)</h3>
                   <p class="subtle">Current organization members and statuses</p>
                 </div>
+                <p id="members-page-message" class="form-message" aria-live="polite"></p>
                 <div id="members-page-list" class="stack-list members-page-list"></div>
               </article>
             </section>
@@ -533,11 +564,40 @@
                 <div id="announcements-page-feed" class="announcement-feed"></div>
               </article>
             </section>
+
+            <section id="dashboard-page-access" class="dashboard-page hidden">
+              <article class="panel dashboard-card full-page-card">
+                <div class="card-header-inline">
+                  <div>
+                    <h3>Admin Access</h3>
+                    <p class="subtle">
+                      Manage K-number roles and organization-specific access without editing Firebase by hand.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="access-overview-grid">
+                  <section class="access-panel">
+                    <h4>Role Templates</h4>
+                    <div id="access-roles-list" class="access-role-list"></div>
+                  </section>
+
+                  <section class="access-panel">
+                    <h4>User Assignments</h4>
+                    <p class="subtle">
+                      Emails do not determine roles. New signups start as Members, and admins assign roles here by K-number.
+                    </p>
+                    <div id="access-users-list" class="access-user-list"></div>
+                    <p id="access-message" class="form-message" aria-live="polite"></p>
+                  </section>
+                </div>
+              </article>
+            </section>
           </section>
         </section>
       </main>
     </div>
 
-    <script src="/app.js"></script>
+    <script src="/app.js?v=20260427-memberroles"></script>
   </body>
 </html>
